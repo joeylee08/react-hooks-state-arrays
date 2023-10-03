@@ -1,8 +1,15 @@
 import React, { useState } from "react";
 import { spicyFoods, getNewRandomSpicyFood } from "../data";
+import Filter from './Filter.js';
 
 function SpicyFoodList() {
   const [foods, setFoods] = useState(spicyFoods);
+  const [selected, setSelect] = useState("All");
+
+  function selectCuisine(event) {
+    const cuisine = event.target.value;
+    setSelect(cuisine)
+  }
 
   function handleAddFood() {
     const newFood = getNewRandomSpicyFood();
@@ -10,7 +17,8 @@ function SpicyFoodList() {
     setFoods(newFoodArray)
   }
 
-  function removeFood(id) {
+  function removeFood(event, id) {
+    event.preventDefault()
     const filtered = foods.filter(item => item.id !== id)
     setFoods(filtered)
   }
@@ -23,14 +31,22 @@ function SpicyFoodList() {
     setFoods(newFoodArray)
   }
 
-  const foodList = foods.map((food) => (
-    <li key={food.id} onClick={() => upTheHeat(food.id)}>
+  const filtered = foods.filter((item) => {
+    if (selected === "All") return true;
+    return item.cuisine === selected;
+  })
+
+  const foodList = filtered.map((food) => (
+    <li key={food.id} onContextMenu={(event) => removeFood(event, food.id)} onClick={() => upTheHeat(food.id)}>
       {food.name} | Heat: {food.heatLevel} | Cuisine: {food.cuisine}
     </li>
   ));
 
+  
+
   return (
     <div>
+      <Filter selectCuisine={selectCuisine}/>
       <button onClick={handleAddFood}>Add New Food</button>
       <ul>{foodList}</ul>
     </div>
